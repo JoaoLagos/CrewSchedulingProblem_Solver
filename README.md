@@ -11,6 +11,14 @@ O **Problema de Escalonamento de Tripulação** (Crew Scheduling Problem - CSP) 
 ## Objetivo do Projeto
 Implementar algoritmos para resolver o problema de escalonamento de tripulação, garantindo a alocação eficiente de recursos humanos para tarefas específicas, respeitando restrições de trabalho e maximizando ou minimizando alguma função de interesse.
 
+Para a entrega do trabalho (e apresentação) serão necessários cobrir os seguintes tópicos:
+- O problema
+- 2 meta-heurísticas
+- A calibração de parâmetros efetuada (melhores parâmetros encontrados para os métodos)
+- Valor médio da solução para 10 execuções
+- Melhor solução encontrada em 10 execuções
+- Tempo médio computacional para 10 execuções.
+
 ---
 
 ## POSSÍVEL Ideia Escolhida
