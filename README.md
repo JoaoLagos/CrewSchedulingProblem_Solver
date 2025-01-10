@@ -21,7 +21,9 @@ Para a entrega do trabalho (e apresentação) serão necessários cobrir os segu
 
 ---
 
-## POSSÍVEL Ideia Escolhida
+## POSSÍVEIS Ideias Escolhidas
+
+## Ideia 1
 > Possível pois não temos certeza ainda. A ideia (problema) escolhida, até o momento, foi retirada de: [https://people.brunel.ac.uk/~mastjjb/jeb/orlib/cspinfo.html](https://people.brunel.ac.uk/~mastjjb/jeb/orlib/cspinfo.html)
 
 ### Programação da tripulação  
@@ -35,14 +37,53 @@ Os problemas de teste resolvidos naquele artigo estão disponíveis em os arquiv
 **O formato desses arquivos de dados é:**
 ```
 - número de tarefas (N), limite de tempo
-- Para cada tarefa i (i=1,...,N): hora de início, hora de término
-- Para cada arco de transição entre duas tarefas (i e j): i, j, custo de transição de i para j
+- Para cada tarefa i (i=1,...,N): 
+  - hora de início, hora de término
+- Para cada arco de transição entre duas tarefas (i e j): 
+  - i, j, custo de transição de i para j
 ```
 
 O valor da solução ótima para cada um desses arquivos de dados para um número variável de tripulações é fornecido no artigo acima.
 
 O maior arquivo é o csp500 de tamanho 250Kb (aproximadamente).  
 O conjunto completo de arquivos tem tamanho de 900 KB (aproximadamente).
+
+## Ideia 2
+> Possível pois não temos certeza ainda. A ideia (problema) escolhida, até o momento, foi retirada de: [https://people.brunel.ac.uk/~mastjjb/jeb/orlib/schinfo.html](https://people.brunel.ac.uk/~mastjjb/jeb/orlib/schinfo.html)
+
+### Agendamento de Datas de Vencimento Comuns
+Atualmente, há 7 arquivos de dados.
+
+Esses arquivos de dados correspondem aos benchmarks usados no problema de datas de vencimento comuns restritas para uma única máquina, como descrito por JEBeasley e outros em vários estudos de pesquisa operacional.
+
+Os problemas de teste resolvidos abrangem os arquivos **sch10**, **sch20**, **sch50**, **sch100**, **sch200**, **sch500**, e **sch1000**, onde o número no nome do arquivo indica a quantidade de trabalhos envolvidos.
+
+**O formato desses arquivos de dados é:**
+```
+- número de problemas
+- Para cada problema por vez:
+  - número de trabalhos (n)
+  - Para cada trabalho i (i=1,...,n) por sua vez:
+    - p(i), a(i), b(i)
+```
+
+Onde:
+- `p(i)` é o tempo de processamento do trabalho i.
+- `a(i)` é a penalidade aplicada se o trabalho i for concluído antes da data de vencimento comum d (adiantamento).
+- `b(i)` é a penalidade aplicada se o trabalho i for concluído após a data de vencimento comum d (atraso).
+
+A data de vencimento comum `d` é calculada como:
+
+```
+d = round[SOMA_P * h]
+```
+
+Onde:
+- `SOMA_P` denota a soma dos tempos de processamento de todos os n trabalhos.
+- `h` é um parâmetro que determina o grau de restrição da data de vencimento comum. Para os benchmarks fornecidos, os valores de `h` usados são 0,2; 0,4; 0,6; e 0,8.
+
+O conjunto completo de benchmarks inclui 280 problemas, abrangendo diferentes combinações de número de trabalhos e parâmetros de restrição de datas de vencimento.
+
 
 <!--
 Até o momento, o cenário escolhido para este projeto é o de **Escalonamento de Tripulação para Companhias Aéreas**.

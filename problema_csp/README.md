@@ -7,8 +7,10 @@ Os arquivos de dados para os problemas CSP seguem a seguinte estrutura mostrada 
 O formato dos arquivos de dados é:
 ```
 - número de tarefas (N), limite de tempo
-- Para cada tarefa i (i=1,...,N): hora de início, hora de término
-- Para cada arco de transição entre duas tarefas (i e j): i, j, custo de transição de i para j
+- Para cada tarefa i (i=1,...,N): 
+  - hora de início, hora de término
+- Para cada arco de transição entre duas tarefas (i e j): 
+  - i, j, custo de transição de i para j
 ```
 
 ### Exemplo Visual dentro do .txt

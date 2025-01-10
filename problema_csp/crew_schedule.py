@@ -1,4 +1,4 @@
-class TaskSchedule:
+class CrewSchedule:
     def __init__(self, path_arquivo):
         self.path_arquivo = path_arquivo
         self.num_tarefas = 0
@@ -19,7 +19,7 @@ class TaskSchedule:
                     inicio, fim = map(int, arquivo.readline().strip().split())
                     self.tarefas[i] = (inicio, fim)
                 
-                # Ler as linhas restantes para obter as transições
+                # Ler as linhas restantes para obter as transições #TODO: Pode ser mudado para dicionário tbm
                 for linha in arquivo:
                     tarefa_i, tarefa_j, custo = map(int, linha.strip().split())
                     self.transicoes.append((tarefa_i, tarefa_j, custo))
