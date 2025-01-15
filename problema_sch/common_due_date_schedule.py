@@ -21,9 +21,10 @@ class CommonDueDateSchedule:
                 for problema_idx in range(1, qtd_problemas + 1):
                     qtd_trabalhos = int(arquivo.readline().strip())  # Lê a quantidade de trabalhos para o problema atual
                     problema = Problema(f"Problema {problema_idx}", param_h=self.param_h)  
-                    for _ in range(qtd_trabalhos):
+                    for trabalho_idx in range(1, qtd_trabalhos + 1):
                         tempo_processamento, custo_antecipado, custo_atraso = map(int, arquivo.readline().strip().split())
-                        problema.adicionar_trabalho(tempo_processamento, custo_antecipado, custo_atraso) # Adiciona o trabalho com sua respectiva informação
+                        trabalho = Trabalho(f"Trabalho {trabalho_idx}", tempo_processamento, custo_antecipado, custo_atraso)  # Criar objeto Trabalho com nome
+                        problema.adicionar_trabalho(trabalho)  # Adiciona o trabalho
                     problema.definir_data_comum() # Calcula a data comum
                     self.problemas.append(problema)
                     
@@ -63,29 +64,22 @@ class Problema:
         self.param_h = param_h
         self.trabalhos = []  # Lista para armazenar os trabalhos
         self.data_vencimento_comum = None
-        self.tempo_acumulado = 0 # Tempo Atual
-        self.penalidade_total = 0
 
-    def adicionar_trabalho(self, tempo_processamento, custo_antecipado, custo_atraso):
+    def adicionar_trabalho(self, trabalho):
         """
         Adiciona um trabalho à lista de trabalhos do problema.
 
         Args:
-            tempo_processamento (int): Tempo de processamento do trabalho.
-            custo_antecipado (int): Custo por antecipação.
-            custo_atraso (int): Custo por atraso.
+            trabalho (Trabalho): O objeto trabalho a ser adicionado.
         """
-        self.trabalhos.append({
-            'tempo_processamento': tempo_processamento,
-            'custo_antecipado': custo_antecipado,
-            'custo_atraso': custo_atraso
-        })
+        self.trabalhos.append(trabalho)
+        self.definir_data_comum()
 
     def definir_data_comum(self):
         """
         Define uma data de vencimento comum para o problema com base na soma dos tempos de processamento e o parâmetro h.
         """
-        soma_p = sum(trabalho['tempo_processamento'] for trabalho in self.trabalhos)
+        soma_p = sum(trabalho.tempo_processamento for trabalho in self.trabalhos)
         self.data_vencimento_comum = soma_p * self.param_h
 
     def calcular_penalidades(self):
@@ -97,22 +91,25 @@ class Problema:
         """
         if self.data_vencimento_comum is None:
             raise ValueError("Data de vencimento comum não definida.")
+        
+        tempo_acumulado = 0
+        penalidade_total = 0
 
         for trabalho in self.trabalhos:
-            self.tempo_acumulado += trabalho['tempo_processamento']
+            tempo_acumulado += trabalho.tempo_processamento
 
             # Calculando as penalidades diretamente
-            if self.tempo_acumulado < self.data_vencimento_comum:  # Antecipação
-                penalidade = (self.data_vencimento_comum - self.tempo_acumulado) * trabalho['custo_antecipado']
-            elif self.tempo_acumulado > self.data_vencimento_comum:  # Atraso
-                penalidade = (self.tempo_acumulado - self.data_vencimento_comum) * trabalho['custo_atraso']
+            if tempo_acumulado < self.data_vencimento_comum:  # Antecipação
+                penalidade = (self.data_vencimento_comum - tempo_acumulado) * trabalho.custo_antecipado
+            elif tempo_acumulado > self.data_vencimento_comum:  # Atraso
+                penalidade = (tempo_acumulado - self.data_vencimento_comum) * trabalho.custo_atraso
             else:  # Nenhuma penalidade, caso não haja antecipação nem atraso, ou seja, tempo de término do trabalho é EXATAMENTE IGUAL ao vencimento_comum
                 penalidade = 0
 
             # Somando a penalidade total
-            self.penalidade_total += penalidade
+            penalidade_total += penalidade
 
-        return self.penalidade_total
+        return penalidade_total
 
     def exibir_informacoes(self):
         """
@@ -121,5 +118,25 @@ class Problema:
         print(f"{self.nome}: Param_h={self.param_h}, Data de Vencimento Comum={self.data_vencimento_comum}")
         print(f"  Número de Trabalhos: {len(self.trabalhos)}")
         for i, trabalho in enumerate(self.trabalhos, 1):
-            print(f"    Trabalho {i}: Tempo de Processamento={trabalho['tempo_processamento']}, "
-                  f"Custo Antecipado={trabalho['custo_antecipado']}, Custo Atraso={trabalho['custo_atraso']}")
+            print(f"    {trabalho.nome}: Tempo de Processamento={trabalho.tempo_processamento}, "
+                  f"Custo Antecipado={trabalho.custo_antecipado}, Custo Atraso={trabalho.custo_atraso}")
+            
+class Trabalho:
+    def __init__(self, nome, tempo_processamento, custo_antecipado, custo_atraso):
+        """
+        Inicializa uma instância de um trabalho com suas características.
+
+        Args:
+            nome (str): Nome do trabalho.
+            tempo_processamento (int): Tempo de processamento do trabalho.
+            custo_antecipado (int): Custo por antecipação.
+            custo_atraso (int): Custo por atraso.
+        """
+        self.nome = nome
+        self.tempo_processamento = tempo_processamento
+        self.custo_antecipado = custo_antecipado
+        self.custo_atraso = custo_atraso
+
+    def __repr__(self):
+        return f"Trabalho(nome={self.nome}, tempo_processamento={self.tempo_processamento}, " \
+               f"custo_antecipado={self.custo_antecipado}, custo_atraso={self.custo_atraso})"

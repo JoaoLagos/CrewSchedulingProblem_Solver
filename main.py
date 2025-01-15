@@ -1,3 +1,4 @@
+from algoritmo_construtivo import AlgoritmoConstrutivo
 from problema_csp.crew_schedule import CrewSchedule
 from problema_sch.common_due_date_schedule import CommonDueDateSchedule
 
@@ -20,4 +21,10 @@ agendamento = CommonDueDateSchedule("problema_sch/arquivos_sch/sch10.txt", 0.6)
 
 agendamento.exibir_informacoes()
 
-print(agendamento.calcular_penalidades_para_problema(0))
+print(agendamento.calcular_penalidades_para_problema(1))
+
+print()
+
+alg_constr = AlgoritmoConstrutivo(agendamento.problemas[0])
+alg_constr.gerar_solucao_inicial()
+alg_constr.exibir_resultado()
