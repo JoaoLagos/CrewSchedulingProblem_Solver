@@ -3,83 +3,93 @@ import random
 from algoritmo_construtivo import AlgoritmoConstrutivo
 from problema_sch.common_due_date_schedule import CommonDueDateSchedule
 
-def gerar_movimento(s):
-    # Gera um movimento aleatório combinando swap, shift e move um trabalho de lugar
-    trabalhos = copy.deepcopy(s)  # Supondo que s seja a lista de trabalhos
-    
-    # Troca (swap) entre dois trabalhos aleatórios
-    i, j = random.sample(range(len(trabalhos)), 2)  # Seleciona dois índices aleatórios
-    trabalhos[i], trabalhos[j] = trabalhos[j], trabalhos[i]  # Troca as posições
-        
-    
-    
-    return copy.deepcopy(trabalhos)
+class TabuSearch:
+    def __init__(self, agendamento, max_iteracoes=500, tamanho_lista_tabu=10):
+        """
+        Inicializa a busca tabu para otimizar o agendamento de problemas com data comum de vencimento.
 
-def avaliar_custo(movimento, data_vencimento_comum):
-    tempo_acumulado = 0
-    penalidade_total = 0
+        Args:
+            agendamento (CommonDueDateSchedule): Instância de agendamento com os problemas a serem resolvidos.
+            max_iteracoes (int): Número máximo de iterações.
+            tamanho_lista_tabu (int): Tamanho máximo da lista tabu.
+        """
+        self.agendamento = agendamento
+        self.max_iteracoes = max_iteracoes
+        self.tamanho_lista_tabu = tamanho_lista_tabu
 
-    for trabalho in movimento:
-        tempo_acumulado += trabalho.tempo_processamento
+    def gerar_movimento(self, s):
+        """
+        Gera um movimento aleatório a partir de uma solução atual.
 
-        # Calculando as penalidades diretamente
-        if tempo_acumulado < data_vencimento_comum:  # Antecipação
-            penalidade = (data_vencimento_comum - tempo_acumulado) * trabalho.custo_antecipado
-        elif tempo_acumulado > data_vencimento_comum:  # Atraso
-            penalidade = (tempo_acumulado - data_vencimento_comum) * trabalho.custo_atraso
-        else:  # Nenhuma penalidade, caso não haja antecipação nem atraso, ou seja, tempo de término do trabalho é EXATAMENTE IGUAL ao vencimento_comum
-            penalidade = 0
+        Args:
+            s (list): Lista de trabalhos representando a solução atual.
 
-        # Somando a penalidade total
-        penalidade_total += penalidade
+        Returns:
+            list: Nova solução após aplicar um movimento aleatório.
+        """
+        trabalhos = copy.deepcopy(s)
+        i, j = random.sample(range(len(trabalhos)), 2)
+        trabalhos[i], trabalhos[j] = trabalhos[j], trabalhos[i]
+        return trabalhos
 
-    return penalidade_total
+    def avaliar_custo(self, solucao, data_vencimento_comum): # Dentro tem o mesmo escopo que em Problema.calcular_penalidades()
+        """
+        Avalia o custo de penalidade de uma solução.
 
+        Args:
+            movimento (list): Solução representada como uma lista de trabalhos.
+            data_vencimento_comum (float): Data de vencimento comum para o problema.
 
-# Inicializa o agendamento com o arquivo e o parâmetro h
-agendamento = CommonDueDateSchedule("problema_sch/arquivos_sch/sch10.txt", 0.6)
+        Returns:
+            float: Custo total de penalidade da solução.
+        """
+        tempo_acumulado = 0
+        penalidade_total = 0
 
-# Inicia a solução construtiva para o primeiro problema
-data_comum = agendamento.problemas[0].data_vencimento_comum
-s = AlgoritmoConstrutivo(agendamento.problemas[0]).gerar_solucao_inicial()
-s_ = copy.deepcopy(s)  # Solução inicial
-iter = 0
-melhor_iter = 0
-lista_tabu = []
+        for trabalho in solucao:
+            tempo_acumulado += trabalho.tempo_processamento
+            if tempo_acumulado < data_vencimento_comum:
+                penalidade = (data_vencimento_comum - tempo_acumulado) * trabalho.custo_antecipado
+            elif tempo_acumulado > data_vencimento_comum:
+                penalidade = (tempo_acumulado - data_vencimento_comum) * trabalho.custo_atraso
+            else:
+                penalidade = 0
+            penalidade_total += penalidade
 
-# Critério de parada: número máximo de iterações
-max_iteracoes = 500
-melhor_solucao = copy.deepcopy(s_)  # Solução inicial como melhor
+        return penalidade_total
 
-#print(avaliar_custo(s_, data_comum))
-while iter < max_iteracoes:
-    iter += 1
-    
-    # Gera o movimento ou a solução vizinha
-    movimento = gerar_movimento(melhor_solucao)
+    def executar(self, problema):
+        """
+        Executa a busca tabu para um problema específico.
 
-    # Verifica se o movimento está na lista tabu
-    if movimento not in lista_tabu:
-        custo_movimento = avaliar_custo(movimento, data_comum)
-        custo_melhor = avaliar_custo(melhor_solucao, data_comum)
-        #print(custo_movimento, custo_melhor)
-        if custo_movimento < custo_melhor:
-            melhor_solucao = copy.deepcopy(movimento)
-            melhor_iter = iter
-            lista_tabu.append(movimento)
-            if len(lista_tabu) > 10:
-                lista_tabu.pop(0)
+        Args:
+            problema (Problema): Problema a ser resolvido.
 
-    else:
-        # Se o movimento está na lista tabu, simplesmente não faz nada
-        pass
+        Returns:
+            float: Custo da melhor solução encontrada.
+            list: Melhor solução encontrada.
+        """
+        data_comum = problema.data_vencimento_comum
+        s = AlgoritmoConstrutivo(problema).gerar_solucao_inicial() # Lista com a ordem de execução das tarefas/trabalhos (cronograma)
+        melhor_solucao = copy.deepcopy(s)
+        lista_tabu = []
+        iter = 0
+        #melhor_iter = 0
 
-    # Se algum critério de sucesso for atingido, podemos parar
-    # Aqui, você pode adicionar o critério de sucesso se desejar
+        while iter < self.max_iteracoes:
+            iter += 1
+            nova_solucao = self.gerar_movimento(melhor_solucao)
+            if nova_solucao not in lista_tabu:
+                custo_nova_solucao = self.avaliar_custo(nova_solucao, data_comum)
+                custo_melhor_solucao = self.avaliar_custo(melhor_solucao, data_comum)
+                if custo_nova_solucao < custo_melhor_solucao:
+                    melhor_solucao = nova_solucao
+                    #melhor_iter = iter
+                    lista_tabu.append(nova_solucao)
+                    if len(lista_tabu) > self.tamanho_lista_tabu:
+                        lista_tabu.pop(0)
 
-    # Exemplo de impressão da melhor solução até o momento
-    if iter % 1 == 0:  # Exibe a cada 100 iterações
-        print(f"Iteração {iter}: Melhor solução até o momento = {avaliar_custo(melhor_solucao, data_comum)}")
+            if iter % 1 == 0:
+                print(f"Iteração {iter}: Melhor custo = {self.avaliar_custo(melhor_solucao, data_comum)}")
 
-# Resultado final após as iterações
-print(f"Solução final encontrada: {avaliar_custo(melhor_solucao, data_comum)}")
+        return self.avaliar_custo(melhor_solucao, data_comum), melhor_solucao

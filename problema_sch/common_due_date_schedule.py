@@ -89,6 +89,8 @@ class Problema:
         Returns:
             float: O custo total de penalidades.
         """
+
+        self.definir_data_comum()
         if self.data_vencimento_comum is None:
             raise ValueError("Data de vencimento comum não definida.")
         
