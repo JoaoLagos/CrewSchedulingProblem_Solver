@@ -1,27 +1,46 @@
+import pandas as pd
 from busca_tabu import TabuSearch
+from busca_simulated_annealing import SimulatedAnnealing
 from problema_sch.common_due_date_schedule import CommonDueDateSchedule
 
+# Lista de valores de h para testar
+h_values = [0.2, 0.4, 0.6, 0.8]
 
-# Carregar o agendamento de tarefas a partir do arquivo
-#agendamento = CrewSchedule("problema_csp/arquivos_csp/csp50.txt")
+# Inicializa as listas para armazenar os resultados
+resultados_tabu = []
+resultados_sa = []
 
-# Exibir as informações do agendamento
-#agendamento.exibir_informacoes()
+# Executa as meta-heurísticas para cada valor de h
+for h in h_values:
+    # Inicializa o agendamento com o valor atual de h
+    agendamento = CommonDueDateSchedule("problema_sch/arquivos_sch/sch10.txt", h)
 
-# Acessar tarefas diretamente usando o dicionário
-#tarefas = agendamento.obter_tarefas()
-#print(f"Primeira tarefa (Tarefa 1): {tarefas[1]}")  # Acessa a tarefa com chave 1
+    # Inicializa as meta-heurísticas
+    busca_tabu = TabuSearch(agendamento)
+    simulated_annealing = SimulatedAnnealing(agendamento)
 
-# Acessar transições diretamente
-#transicoes = agendamento.obter_transicoes()
-#print(f"Primeira transição: {transicoes[0]}")
+    # Executa para cada problema no agendamento
+    for k, problema in enumerate(agendamento.problemas, start=1):
+        # Executa a BUSCA TABU
+        custo_tabu, _ = busca_tabu.executar(problema)
+        resultados_tabu.append((k, h, custo_tabu))
 
-# Inicializa o arquivo em questão
-agendamento = CommonDueDateSchedule("problema_sch/arquivos_sch/sch10.txt", 0.6)
+        # Executa o SIMULATED ANNEALING
+        custo_sa, _ = simulated_annealing.executar(problema)
+        resultados_sa.append((k, h, custo_sa))
 
-# Inicializa a meta-heurística BUSCA TABU
-busca_tabu = TabuSearch(agendamento)
-# Executa a BUSCA TABU
-for problema in agendamento.problemas:
-    print(f"EXECUÇÃO: {problema.nome}")
-    busca_tabu.executar(problema)
+# Cria DataFrames para os resultados
+df_tabu = pd.DataFrame(resultados_tabu, columns=['k', 'h', 'Custo'])
+df_sa = pd.DataFrame(resultados_sa, columns=['k', 'h', 'Custo'])
+
+# Pivot para formatar a tabela
+tabela_tabu = df_tabu.pivot(index='k', columns='h', values='Custo')
+tabela_sa = df_sa.pivot(index='k', columns='h', values='Custo')
+
+print('\n')
+# Exibe as tabelas
+print("Resultados Tabu Search:")
+print(tabela_tabu)
+
+print("\nResultados Simulated Annealing:")
+print(tabela_sa)
