@@ -1,6 +1,4 @@
-from algoritmo_construtivo import AlgoritmoConstrutivo
 from busca_tabu import TabuSearch
-from problema_csp.crew_schedule import CrewSchedule
 from problema_sch.common_due_date_schedule import CommonDueDateSchedule
 
 
@@ -24,4 +22,6 @@ agendamento = CommonDueDateSchedule("problema_sch/arquivos_sch/sch10.txt", 0.6)
 # Inicializa a meta-heurística BUSCA TABU
 busca_tabu = TabuSearch(agendamento)
 # Executa a BUSCA TABU
-busca_tabu.executar(agendamento.problemas[0])
+for problema in agendamento.problemas:
+    print(f"EXECUÇÃO: {problema.nome}")
+    busca_tabu.executar(problema)

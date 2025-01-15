@@ -4,7 +4,7 @@ from algoritmo_construtivo import AlgoritmoConstrutivo
 from problema_sch.common_due_date_schedule import CommonDueDateSchedule
 
 class TabuSearch:
-    def __init__(self, agendamento, max_iteracoes=500, tamanho_lista_tabu=10):
+    def __init__(self, agendamento, max_iteracoes=5000, tamanho_lista_tabu=10):
         """
         Inicializa a busca tabu para otimizar o agendamento de problemas com data comum de vencimento.
 
@@ -89,7 +89,7 @@ class TabuSearch:
                     if len(lista_tabu) > self.tamanho_lista_tabu:
                         lista_tabu.pop(0)
 
-            if iter % 1 == 0:
+            if iter % 5000 == 0:
                 print(f"Iteração {iter}: Melhor custo = {self.avaliar_custo(melhor_solucao, data_comum)}")
 
         return self.avaliar_custo(melhor_solucao, data_comum), melhor_solucao
