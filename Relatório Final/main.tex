@@ -21,10 +21,12 @@
 %\usepackage[brazil]{babel}   
 \usepackage[utf8]{inputenc}  
 
+\usepackage{hyperref}
+
      
 \sloppy
 
-\title{Scheduling Problem}
+\title{Problema de Data Comum em Máquina Única Restrita}
 % Decidir se vai ser Crew Scheduling ou Common due date scheduling
 
 \author{João Victor Lagos\inst{1}, Daniel José\inst{1}, Felipe Vahia\inst{1}}
@@ -35,107 +37,208 @@
 \nextinstitute
   Departmento de Ciência da Computação -- Universidade Federal Fluminense (UFF)\\
   Rio de Janeiro, BR.
-  \email{\{joaolagos,pessoa2,pessoa3\}@id.uff.br}
+  \email{\{joaolagos,danieljms,felipevahia\}@id.uff.br}
 }
 
 \begin{document} 
 
 \maketitle
-
-\begin{abstract}
-  This meta-paper describes the style to be used in articles and short papers
-  for SBC conferences. For papers in English, you should add just an abstract
-  while for the papers in Portuguese, we also ask for an abstract in
-  Portuguese (``resumo''). In both cases, abstracts should not have more than
-  10 lines and must be in the first page of the paper.
-\end{abstract}
      
 \begin{resumo} 
-  Este meta-artigo descreve o estilo a ser usado na confecção de artigos e
-  resumos de artigos para publicação nos anais das conferências organizadas
-  pela SBC. É solicitada a escrita de resumo e abstract apenas para os artigos
-  escritos em português. Artigos em inglês deverão apresentar apenas abstract.
-  Nos dois casos, o autor deve tomar cuidado para que o resumo (e o abstract)
-  não ultrapassem 10 linhas cada, sendo que ambos devem estar na primeira
-  página do artigo.
+Este trabalho explora o Problema de Data Comum em Máquina Única Restrita, um problema clássico de otimização combinatória. O objetivo é agendar tarefas, com tempos de processamento determinados, em uma única máquina, de forma a minimizar a soma das penalidades de antecipação e atraso em relação a uma data comum. Para cada tarefa, as penalidades são aplicadas conforme o término ocorre antes ou depois da data. Foram desenvolvidos dois algoritmos meta-heurísticos baseados em Simulated Annealing e Busca Tabu para resolver o problema. Os resultados incluem a calibração de parâmetros, o valor médio das soluções em 10 execuções, a melhor solução encontrada em 10 execuções e o tempo médio computacional necessário para essas execuções.
 \end{resumo}
+
+\begin{abstract}  
+This work explores the Restricted Single-Machine Common Due Date Problem, a classic combinatorial optimization problem. The goal is to schedule tasks with deterministic processing times on a single machine to minimize the sum of earliness and tardiness penalties relative to a common due date. For each task, penalties are incurred depending on whether the completion occurs before or after the due date. Two heuristic algorithms based on Simulated Annealing and Tabu Search were developed to solve the problem. The results include parameter calibration, the average solution value over 10 runs, the best solution found in 10 runs, and the average computational time required for these executions.  
+\end{abstract}
+
 
 
 \section{Introdução}
 
-All full papers and posters (short papers) submitted to some SBC conference,
-including any supporting documents, should be written in English or in
-Portuguese. The format paper should be A4 with single column, 3.5 cm for upper
-margin, 2.5 cm for bottom margin and 3.0 cm for lateral margins, without
-headers or footers. The main font must be Times, 12 point nominal size, with 6
-points of space before each paragraph. Page numbers must be suppressed.
+\section{O Problema: Common Due Date Scheduling} \label{sec:o_problema}
 
-Full papers must respect the page limits defined by the conference.
-Conferences that publish just abstracts ask for \textbf{one}-page texts.
+O problema de agendamento com data de vencimento comum restrita em uma máquina única foi obtido através do \href{https://people.brunel.ac.uk/~mastjjb/jeb/orlib/schinfo.html}{OR Library - Common Due Date Scheduling} e pode ser definido da seguinte maneira:
 
-\section{O Problema} \label{sec:o_problema}
+Dado um conjunto de $n$ tarefas com tempos de processamento determinísticos $p(i)$ e uma data de vencimento comum $d$, todas as tarefas devem ser processadas em uma única máquina. Para cada tarefa $i$, são atribuídas penalidades individuais de adiantamento $a(i)$ e de atraso $b(i)$. Essas penalidades são aplicadas caso a tarefa seja concluída antes ou depois da data de vencimento $d$, respectivamente. O objetivo é determinar uma sequência de execução das $n$ tarefas que minimize a soma total das penalidades de adiantamento e atraso.
 
-The first page must display the paper title, the name and address of the
-authors, the abstract in English and ``resumo'' in Portuguese (``resumos'' are
-required only for papers written in Portuguese). The title must be centered
-over the whole page, in 16 point boldface font and with 12 points of space
-before itself. Author names must be centered in 12 point font, bold, all of
-them disposed in the same line, separated by commas and with 12 points of
-space after the title. Addresses must be centered in 12 point font, also with
-12 points of space after the authors' names. E-mail addresses should be
-written using font Courier New, 10 point nominal size, with 6 points of space
-before and 6 points of space after.
+Ou seja, em resumo, deve-se obter a ordem ou sequência em que os trabalhos (jobs) devem ser processados pela máquina para minimizar as penalidades totais, considerando antecipações e atrasos.
 
-The abstract and ``resumo'' (if is the case) must be in 12 point Times font,
-indented 0.8cm on both sides. The word \textbf{Abstract} and \textbf{Resumo},
-should be written in boldface and must precede the text.
+No problema descrito, tem-se os seguintes elementos:
 
-\section{As Duas Meta-heurísticas}
+\begin{itemize}
+\item \textbf{$n$ trabalhos}: Cada trabalho $i$ tem um tempo de processamento $p(i)$, uma penalidade de antecipação $a(i)$ e uma penalidade de atraso $b(i)$.
+\item \textbf{Data de vencimento comum} $d$: Calculada com base na soma total dos tempos de processamento do problema multiplicada por um fator $h$ (restritivo ou não), conforme a  
+\item \textbf{Objetivo}: Encontrar a sequência de tarefas que minimiza a soma das penalidades de antecipação e atraso para todos os trabalhos.
+\end{itemize}
 
-In some conferences, the papers are published on CD-ROM while only the
-abstract is published in the printed Proceedings. In this case, authors are
-invited to prepare two final versions of the paper. One, complete, to be
-published on the CD and the other, containing only the first page, with
-abstract and ``resumo'' (for papers in Portuguese).
+
+O formato interno dos arquivos de dados utilizados para esse problema segue a seguinte estrutura:
+
+\begin{itemize}
+    \item A primeira linha contém o número total de problemas.
+    \item Para cada problema subsequente:
+    \begin{itemize}
+        \item A primeira linha especifica o número de trabalhos ($n$) associados ao problema.
+        \item As $n$ linhas seguintes contêm três valores por linha: 
+        \begin{itemize}
+            \item $p(i)$: Tempo de processamento do trabalho $i$.
+            \item $a(i)$: Penalidade por antecipação do trabalho $i$.
+            \item $b(i)$: Penalidade por atraso do trabalho $i$.
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+Exemplo visual do formato de um arquivo de dados:
+
+\begin{verbatim}
+10                    # Número total de problemas
+10                    # Número de trabalhos (n) para Problema 1
+20  4  5              # p(i): temp. procss, a(i): pen. antecipação, b(i): pen. por atraso
+..  .. ..
+13 10  1              # Exemplos subsequentes para o mesmo problema
+..  .. ..
+10                    # Número de trabalhos (n) para o último problema
+16  2  6
+..  .. ..
+11  1 12
+\end{verbatim}
+
+\subsection{Exemplo Simplificado}
+
+Suponha que você tenha 3 trabalhos com os seguintes dados:  
+
+$p(1) = 5$, $a(1) = 2$, $b(1) = 3$  
+
+$p(2) = 3$, $a(2) = 1$, $b(2) = 4$  
+
+$p(3) = 4$, $a(3) = 5$, $b(3) = 2$  
+
+$h = 0.6$
+
+A data de vencimento comum $d$ é calculada como:  
+\[
+d = 0.6 \times SOMA\_P = 0.6 \times (5 + 3 + 4) = 7
+\]
+
+Neste exemplo, você precisa determinar uma ordem de execução das tarefas (por exemplo, [1, 2, 3], [2, 3, 1], etc.) que minimize a soma das penalidades totais. A penalidade de cada trabalho depende se ele termina antes ou depois da data de vencimento $d$:
+\begin{itemize}
+    \item Penalidade por antecipação ($a(i)$) é aplicada se o trabalho termina antes de $d$.
+    \item Penalidade por atraso ($b(i)$) é aplicada se o trabalho termina após $d$.
+\end{itemize}
+O desafio consiste em encontrar a sequência que resulta no menor custo total de antecipações e atrasos.
+
+\subsection{Função Objetivo} \label{subsec:funcao_objetivo}
+
+A função objetivo para o problema de agendamento com data de vencimento comum em máquina única busca minimizar a soma total das penalidades de antecipação e atraso de todas as tarefas. Dada uma sequência de execução dos $n$ trabalhos, a função objetivo pode ser definida como:
+
+\[
+C = \sum_{i=1}^{n} \left[ a(i) \max(0, d - C_i) + b(i) \max(0, C_i - d) \right]
+\]
+
+onde:  
+\begin{itemize}
+    \item $C_i$ é o instante de conclusão do trabalho $i$ na sequência dada.  
+    \item $d$ é a data de vencimento comum calculada para todas as tarefas.  
+    \item $a(i)$ e $b(i)$ são as penalidades individuais de antecipação e atraso, respectivamente, para o trabalho $i$.  
+    \item $\max(0, d - C_i)$ representa o tempo de antecipação (se existir), e $\max(0, C_i - d)$ representa o tempo de atraso (se existir).
+\end{itemize}
+
+O objetivo é encontrar a melhor sequência de execução dos trabalhos que minimize o valor de $C$, garantindo a menor soma de custos associados ao adiantamento e ao atraso das tarefas.
+
+\section{As Duas Meta-heurísticas} \label{sec:metaheuristicas}
+
+Para resolver o problema de agendamento com data de vencimento comum em máquina única, foram implementadas duas meta-heurísticas populares: Busca Tabu (Tabu Search) e Simulated Annealing. Essas abordagens são amplamente utilizadas para encontrar soluções aproximadas em problemas de otimização combinatória complexos devido à sua capacidade de escapar de ótimos locais e explorar o espaço de soluções de maneira eficiente.
+
+Vale lembrar que a solução inicial foi feita a partir de uma heurística construtiva aleatória.
+
+\subsection{Busca Tabu}
+
+A Busca Tabu é uma meta-heurística baseada em memória que guia a exploração do espaço de soluções, evitando a revisitação de soluções já analisadas. Para isso, utiliza uma estrutura de memória chamada \textit{lista tabu}, que armazena movimentos ou soluções proibidas temporariamente. O algoritmo Busca Tabu implementado neste trabalho utiliza os seguintes componentes principais:
+
+\begin{itemize}
+    \item \textbf{Solução Inicial}: Uma sequência inicial de execução das tarefas, gerada aleatoriamente ou por heurísticas simples.
+    \item \textbf{Movimentos}: Trocas ou reordenações de tarefas para gerar novas soluções candidatas.
+    \item \textbf{Lista Tabu}: Armazena soluções recentes para evitar ciclos e melhorar a exploração global.
+\end{itemize}
+
+O pseudocódigo para o Busca Tabu está ilustrado abaixo:
+
+\begin{figure}[h]  
+    \centering 
+    \includegraphics[width=1\textwidth]{busca_tabu.jpg}  
+    \caption{Pseudocódigo do Busca Tabu}  % Legenda da imagem
+    \label{fig:busca_tabu}  % Etiqueta para referenciar a imagem
+\end{figure}
+
+
+O objetivo é continuar explorando novas soluções, escapando de ótimos locais e melhorando iterativamente a solução atual.
+
+\subsection{Simulated Annealing}
+
+O Simulated Annealing é inspirado no processo físico de recozimento, onde um material é aquecido e resfriado lentamente para minimizar sua energia interna. A meta-heurística segue uma abordagem probabilística para aceitar ou rejeitar soluções piores com base em uma função de temperatura decrescente, o que permite escapar de ótimos locais.
+
+Os principais componentes do algoritmo implementado incluem:
+
+\begin{itemize}
+    \item \textbf{Solução Inicial}: Uma sequência de execução inicial das tarefas.
+    \item \textbf{Temperatura Inicial}: Controla a probabilidade de aceitar soluções piores no início do processo.
+    \item \textbf{Função de Decaimento}: Reduz gradualmente a temperatura durante a execução.
+    \item \textbf{Critério de Aceitação}: Soluções melhores são sempre aceitas, enquanto soluções piores são aceitas com probabilidade $e^{-\Delta C / T}$, onde $\Delta C$ é a diferença de custo e $T$ é a temperatura atual.
+\end{itemize}
+
+O pseudocódigo para o Busca Tabu está ilustrado abaixo:
+
+\begin{figure}[h]  
+    \centering 
+    \includegraphics[width=0.6\textwidth]{busca_SA.jpg}  
+    \caption{Pseudocódigo do Simulated Annealing}  % Legenda da imagem
+    \label{fig:busca_SA}  % Etiqueta para referenciar a imagem
+\end{figure}
+
+A combinação de resfriamento controlado e exploração probabilística permite que o Simulated Annealing busque soluções próximas do ótimo global, evitando ficar preso em ótimos locais.
+
+
 
 \section{Calibração de Parâmetros}
 
-Section titles must be in boldface, 13pt, flush left. There should be an extra
-12 pt of space before each title. Section numbering is optional. The first
-paragraph of each section should not be indented, while the first lines of
-subsequent paragraphs should be indented by 1.27 cm.
+A calibração de parâmetros é uma etapa fundamental em muitos modelos e algoritmos, pois garante que os parâmetros ajustados ou escolhidos maximizem a performance ou a precisão do modelo. O objetivo principal dessa etapa é determinar os valores ótimos para os parâmetros do sistema de modo que ele se comporte de forma eficiente e produza resultados que estejam alinhados com as expectativas ou dados empíricos.
 
-\section{Valor Médio da Solução}
+\subsection{Parâmetros no Busca Tabu}
 
-Section titles must be in boldface, 13pt, flush left. There should be an extra
-12 pt of space before each title. Section numbering is optional. The first
-paragraph of each section should not be indented, while the first lines of
-subsequent paragraphs should be indented by 1.27 cm.
+Os parâmetros de importância para a meta-heurística Busca Tabu são o número de iterações máximas e o tamanho da lista Tabu. Esses parâmetros têm grande influência no desempenho e na capacidade de encontrar uma solução ótima ou quase ótima dentro de um espaço de busca.
 
-\section{Melhor Solução}
+\begin{itemize}
+    \item \textbf{Número de iterações máximas:} Este parâmetro define o número máximo de iterações que o algoritmo irá realizar. Um número elevado de iterações permite que o algoritmo explore mais profundamente o espaço de soluções, aumentando as chances de encontrar uma solução melhor. No entanto, um número excessivo de iterações pode levar a um alto custo computacional sem melhorias significativas nos resultados.
+    \begin{itemize}
+        \item Nesse sentido, o valor para o referido parâmetro foi de \textbf{5.000 iterações} (max\_iter=5000).
+    \end{itemize}
+    
+    \item \textbf{Tamanho da lista Tabu:} O tamanho da lista Tabu determina quantas soluções anteriores são lembradas. Um tamanho muito pequeno pode resultar em repetição de soluções e perda de diversidade na busca, enquanto um tamanho muito grande pode levar a uma exploração muito restrita do espaço de soluções.
+    \begin{itemize}
+        \item Nesse sentido, optamos por um tamanho de \textbf{10 soluções} (tamanho\_lista\_tabu=10).
+    \end{itemize}
+\end{itemize}
 
-Section titles must be in boldface, 13pt, flush left. There should be an extra
-12 pt of space before each title. Section numbering is optional. The first
-paragraph of each section should not be indented, while the first lines of
-subsequent paragraphs should be indented by 1.27 cm.
+\subsection{Parâmetros no Simulated Annealing}
 
-\section{Tempo Médio Computacional}
+FAZER...
 
-Section titles must be in boldface, 13pt, flush left. There should be an extra
-12 pt of space before each title. Section numbering is optional. The first
-paragraph of each section should not be indented, while the first lines of
-subsequent paragraphs should be indented by 1.27 cm.
+
+\section{Valor Médio da Solução (10 Execuções)}
+
+
+
+\section{Melhor Solução (10 Execuções)}
+
+
+
+\section{Tempo Médio Computacional (10 Execuções)}
+
+
 
 \section{Conclusão}
 
-Section titles must be in boldface, 13pt, flush left. There should be an extra
-12 pt of space before each title. Section numbering is optional. The first
-paragraph of each section should not be indented, while the first lines of
-subsequent paragraphs should be indented by 1.27 cm.
-
-\subsection{Subsections}
-
-The subsection titles must be in boldface, 12pt, flush left.
 
 \section{Figures and Captions}\label{sec:figs}
 
@@ -177,13 +280,6 @@ space before and after each caption.
 \end{table}
 
 \section{Images}
-
-All images and illustrations should be in black-and-white, or gray tones,
-excepting for the papers that will be electronically available (on CD-ROMs,
-internet, etc.). The image resolution on paper should be about 600 dpi for
-black-and-white images, and 150-300 dpi for grayscale images.  Do not include
-images with excessive resolution, as they may take hours to print, without any
-visible difference in the result. 
 
 \section{References}
 
