@@ -36,7 +36,7 @@ for h in h_values:
     # Executa para cada problema no agendamento
     for k, problema in enumerate(agendamento.problemas, start=1):
         # Executa a BUSCA TABU
-        custo_tabu, _ = busca_tabu.executar(problema)
+        custo_tabu, melhor_solucao_tabu = busca_tabu.executar(problema)
         resultados_tabu.append((k, h, custo_tabu))
         print("Processando Busca Tabu...")
     # Calcula o tempo de execução do TABU
@@ -48,7 +48,7 @@ for h in h_values:
     start_time = time.time()
     for k, problema in enumerate(agendamento.problemas, start=1):
         # Executa o SIMULATED ANNEALING
-        custo_sa, _ = simulated_annealing.executar(problema)
+        custo_sa, melhor_solucao_sa = simulated_annealing.executar(problema)
         resultados_sa.append((k, h, custo_sa))
         print("Processando Simulated Annealing...")
     # Calcula o tempo de execução do TABU
@@ -74,9 +74,25 @@ print(tabela_sa)
 
 # Salva os resultados em arquivos .txt na pasta 'resultados'
 with open(f'resultados/resultado_{nome_arquivo}', 'w') as f:
-    f.write(f"RESULTADO PARA {nome_arquivo}\n\n")
+    f.write("===================================\n")
+    f.write(f"RESULTADO PARA {nome_arquivo}\n")
+    f.write("===================================\n\n")
+    f.write("============================TABU SEARCH============================\n")
     f.write(f"Resultados Tabu Search:   (Tempo: {tempo_total_tabu:.4f} segundos)\n")
     f.write(tabela_tabu.to_string())
+    f.write("\n--------------------------------------")
+    f.write("\nMelhor Solucao do Busca Tabu:\n")
+    for i, trabalho in enumerate(melhor_solucao_tabu, start=1):
+        f.write(f"   {i:>2}. {trabalho.nome}\n")
+    f.write("====================================================================")
     
-    f.write(f"\n\nResultados Simulated Annealing:   (Tempo: {tempo_total_sa:.4f} segundos)\n")
+
+
+    f.write("\n\n\n==========================SIMULATED ANNEALING===========================\n")
+    f.write(f"Resultados Simulated Annealing:   (Tempo: {tempo_total_sa:.4f} segundos)\n")
     f.write(tabela_sa.to_string())
+    f.write("\n-------------------------------------------------")
+    f.write("\nMelhor Solucao do Simulated Annealing:\n")
+    for i, trabalho in enumerate(melhor_solucao_sa, start=1):
+        f.write(f"   {i:>2}. {trabalho.nome}\n")
+    f.write("====================================================================")
