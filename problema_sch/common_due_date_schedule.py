@@ -80,7 +80,7 @@ class Problema:
         Define uma data de vencimento comum para o problema com base na soma dos tempos de processamento e o parâmetro h.
         """
         soma_p = sum(trabalho.tempo_processamento for trabalho in self.trabalhos)
-        self.data_vencimento_comum = soma_p * self.param_h
+        self.data_vencimento_comum = int(soma_p * self.param_h)
 
     def calcular_penalidades(self):
         """
