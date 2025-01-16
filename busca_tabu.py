@@ -1,3 +1,4 @@
+
 import copy
 import random
 from algoritmo_construtivo import AlgoritmoConstrutivo
@@ -88,8 +89,5 @@ class TabuSearch:
                     lista_tabu.append(nova_solucao)
                     if len(lista_tabu) > self.tamanho_lista_tabu:
                         lista_tabu.pop(0)
-
-            if iter % 5000 == 0:
-                print(f"Iteração {iter}: Melhor custo = {self.avaliar_custo(melhor_solucao, data_comum)}")
 
         return self.avaliar_custo(melhor_solucao, data_comum), melhor_solucao
